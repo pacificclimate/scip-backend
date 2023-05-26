@@ -3,20 +3,20 @@ from sqlalchemy_sqlschema import maintain_schema
 from sqlalchemy_sqlschema.sql import get_schema
 from sqlalchemy import func
 
-def region(session, kind, name=None, code=None):
+def region(session, kind, overlap=None, name=None, code=None):
     print("region call")
 
     with maintain_schema("public, salmon_geometry", session):
-#        stmt = get_schema()
-#        print(stmt)
  
         #check kind
         if kind not in ["watershed", "basin", "conservation_unit"]:
             raise ValueError("Unsupported region kind: {}".format(kind))
         
-    
+        #TODO: check other arguments, especially overlap
+
+        # conservation units and other types of region are kept seperately
+        # in the databse, but we want them to have the same API access
         if kind == "conservation_unit":
-            print("conservation unit table")
             q = (
                 session.query(
                     ConservationUnit.name.label("name"),
@@ -25,9 +25,17 @@ def region(session, kind, name=None, code=None):
                     func.ST_ASGeoJSON(ConservationUnit.outlet).label("outlet")
                 )
             )
+            
+            if overlap:
+                q = q.filter(ConservationUnit.boundary.ST_Intersects(overlap))
+                
+            if name:
+                q = q.filter(ConservationUnit.name == name)
+                
+            if code:
+                q = q.filter(ConservationUnit.code == code)
 
         else:
-            print("Region table")
             q = (
                 session.query(
                     Region.name.label("name"),
@@ -38,10 +46,18 @@ def region(session, kind, name=None, code=None):
                 )
                 .filter(Region.kind == kind)
             )
-        
+            
+            if overlap:
+                q = q.filter(Region.boundary.ST_Intersects(overlap))
+            
+            if name:
+                q = q.filter(Region.name == name)
+                
+            if code:
+                q = q.filter(Region.code == code)
+
 
         results = q.all()
-        print(results)    
         
         result_list = []
         for result in results:
@@ -53,5 +69,4 @@ def region(session, kind, name=None, code=None):
             res["boundary"] = getattr(result,"boundary")
             result_list.append(res)
         
-        print(result_list)
         return(result_list)
