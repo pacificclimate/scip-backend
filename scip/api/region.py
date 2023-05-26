@@ -4,7 +4,6 @@ from sqlalchemy_sqlschema.sql import get_schema
 from sqlalchemy import func
 
 def region(session, kind, overlap=None, name=None, code=None):
-    print("region call")
 
     with maintain_schema("public, salmon_geometry", session):
  
