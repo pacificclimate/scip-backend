@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "scip-backend"
+version = "0.1.0"
+description = "APIs that provide salmon data to the SCIP frontend"
+authors = ["Lee Zeman <lzeman@uvic.ca>"]
+license = "AGPL-3"
+readme = "README.md"
+packages = [{include = "scip_backend"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+geoalchemy2 = "^0.13.3"
+salmon-occurrence = {git = "https://github.com/pacificclimate/scip-db", rev = "init"}
+flask = "^2.3.2"
+flask-cors = "^3.0.10"
+flask-sqlalchemy = "^3.0.3"
+sqlalchemy-sqlschema = "^0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
