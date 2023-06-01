@@ -5,9 +5,7 @@ from sqlalchemy import func
 
 
 def region(session, kind, overlap=None, name=None, code=None):
-
     with maintain_schema("public, salmon_geometry", session):
-
         # check kind
         if kind not in ["watershed", "basin", "conservation_unit"]:
             raise ValueError("Unsupported region kind: {}".format(kind))

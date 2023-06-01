@@ -17,7 +17,6 @@ def population(
     # TODO: return additional data
 
     with maintain_schema("public, salmon_geometry", session):
-
         q = (
             session.query(
                 Taxon.common_name.label("common_name"),
