@@ -13,8 +13,6 @@ __all__ = list(methods.keys()) + ["call"]
 
 def call(session, request_type):
     # this function is mostly copied from PCEX
-    print("request_type = {}".format(request_type))
-
     try:
         func = methods[request_type]
     except KeyError:

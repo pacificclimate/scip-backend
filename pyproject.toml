@@ -5,7 +5,6 @@ description = "APIs that provide salmon data to the SCIP frontend"
 authors = ["Lee Zeman <lzeman@uvic.ca>"]
 license = "AGPL-3"
 readme = "README.md"
-# packages = [{include = "scip_backend"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
