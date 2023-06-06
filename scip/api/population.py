@@ -12,6 +12,22 @@ def population(
     subgroup=None,
     name=None,
 ):
+    """Return information about salmon populations in the database that fulfill
+    specified parameters.
+
+    :param session: (sqlalchemy.orm.session.Session) a database Session object
+    :param overlap: a WKT string specifying a geometry that overlaps with the desired populations
+    :param common_name: common name of the salmon species of interest
+    :param scientific_name: scientific name of the salmon species of interest
+    :param subgroup: parameter designating a sub-species taxon, such as `lake` or `river` for sockeye salmon
+    :param name: name of the conservation unit that encloses the population's range
+
+    :return: a list of objects representing salmon populations that fulfill the given parameters. In
+        addition to `common_name`, `scientific_name`, `subgroup`, and `name`, two geoJSON strings describing
+        the geometry of the population7s extent are provided. `boundary` describes the outline of the extent,
+        and `outlet` provides the most downstream point of the extent according to the RVIC routed flow data.
+
+    """
     # TODO: verify input arguments
 
     # TODO: return additional data
@@ -37,7 +53,6 @@ def population(
         if name:
             q = q.filter(ConservationUnit.name == name)
 
-        # TODO: more sophisticated handling of subgroups here
         if common_name:
             q = q.filter(Taxon.common_name == common_name)
         if scientific_name:
