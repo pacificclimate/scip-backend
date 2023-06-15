@@ -33,6 +33,17 @@ typing-extensions = ">=4"
 tz = ["python-dateutil"]
 
 [[package]]
+name = "asn1crypto"
+version = "1.5.1"
+description = "Fast ASN.1 parser and serializer with definitions for private keys, public keys, certificates, CRL, OCSP, CMS, PKCS#3, PKCS#7, PKCS#8, PKCS#12, PKCS#5, X.509 and TSP"
+optional = false
+python-versions = "*"
+files = [
+    {file = "asn1crypto-1.5.1-py2.py3-none-any.whl", hash = "sha256:db4e40728b728508912cbb3d44f19ce188f218e9eba635821bb4b68564f8fd67"},
+    {file = "asn1crypto-1.5.1.tar.gz", hash = "sha256:13ae38502be632115abf8a24cbe5f4da52e3b5231990aff31123c805306ccb9c"},
+]
+
+[[package]]
 name = "babel"
 version = "2.12.1"
 description = "Internationalization utilities"
@@ -602,6 +613,21 @@ files = [
 ]
 
 [[package]]
+name = "pg8000"
+version = "1.29.6"
+description = "PostgreSQL interface library"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "pg8000-1.29.6-py3-none-any.whl", hash = "sha256:3c7f74843adca879a309c46a880dac797b959db41122eebf59e3e31701dbb8b0"},
+    {file = "pg8000-1.29.6.tar.gz", hash = "sha256:ba39c1196408ebe19b23710823871ba3b694df030c4f7a7e2c49f1512091d142"},
+]
+
+[package.dependencies]
+python-dateutil = ">=2.8.2"
+scramp = ">=1.4.3"
+
+[[package]]
 name = "platformdirs"
 version = "3.5.1"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
@@ -690,6 +716,20 @@ tomli = {version = ">=1.0.0", markers = "python_version < \"3.11\""}
 testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.7.2)", "requests", "xmlschema"]
 
 [[package]]
+name = "python-dateutil"
+version = "2.8.2"
+description = "Extensions to the standard Python datetime module"
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
+files = [
+    {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
+    {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
+]
+
+[package.dependencies]
+six = ">=1.5"
+
+[[package]]
 name = "pytz"
 version = "2023.3"
 description = "World timezone definitions, modern and historical"
@@ -740,7 +780,21 @@ SQLAlchemy = "*"
 type = "git"
 url = "https://github.com/pacificclimate/scip-db"
 reference = "init"
-resolved_reference = "63e5090b54093bfbdb3a2af2e71e0d64985201a4"
+resolved_reference = "2c49a4482e7ac4cc16da63ec00cbf7abe3836c1f"
+
+[[package]]
+name = "scramp"
+version = "1.4.4"
+description = "An implementation of the SCRAM protocol."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "scramp-1.4.4-py3-none-any.whl", hash = "sha256:b142312df7c2977241d951318b7ee923d6b7a4f75ba0f05b621ece1ed616faa3"},
+    {file = "scramp-1.4.4.tar.gz", hash = "sha256:b7022a140040f33cf863ab2657917ed05287a807b917950489b89b9f685d59bc"},
+]
+
+[package.dependencies]
+asn1crypto = ">=1.5.1"
 
 [[package]]
 name = "six"
@@ -985,6 +1039,38 @@ tests-all = ["mock (>=1.0)", "psycopg2 (>=2.6)", "pytest (>=2.6)"]
 tests-postgres = ["psycopg2 (>=2.6)"]
 
 [[package]]
+name = "testing-common-database"
+version = "2.0.3"
+description = "utilities for testing.* packages"
+optional = false
+python-versions = "*"
+files = [
+    {file = "testing.common.database-2.0.3-py2.py3-none-any.whl", hash = "sha256:e3ed492bf480a87f271f74c53b262caf5d85c8bc09989a8f534fa2283ec52492"},
+    {file = "testing.common.database-2.0.3.tar.gz", hash = "sha256:965d80b2985315325dc358c3061b174a712f4d4d5bf6a80b58b11f9a1dd86d73"},
+]
+
+[package.extras]
+testing = ["nose"]
+
+[[package]]
+name = "testing-postgresql"
+version = "1.3.0"
+description = "automatically setups a postgresql instance in a temporary directory, and destroys it after testing"
+optional = false
+python-versions = "*"
+files = [
+    {file = "testing.postgresql-1.3.0-py2.py3-none-any.whl", hash = "sha256:1b41daeb98dfc8cd4a584bb91e8f5f4ab182993870f95257afe5f1ba6151a598"},
+    {file = "testing.postgresql-1.3.0.tar.gz", hash = "sha256:8e1a69760369a7a8ffe63a66b6d95a5cd82db2fb976e4a8f85ffd24fbfc447d8"},
+]
+
+[package.dependencies]
+pg8000 = ">=1.10"
+"testing.common.database" = "*"
+
+[package.extras]
+testing = ["SQLAlchemy", "nose", "psycopg2"]
+
+[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
@@ -1058,4 +1144,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "a0174039c441fd2072df00bb5edff72b9478c30d8a369be47f2c3049a3e81c4b"
+content-hash = "466e4a8ca89b9c09a6a56293dbde29f494a20f64d0aea6c901f80389d2e36de6"
