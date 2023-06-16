@@ -1,4 +1,4 @@
-from salmon_occurrence import salmon_db, Region
+from salmon_occurrence import salmon_db, Region, Taxon, ConservationUnit, Population
 import re
 import json
 
@@ -62,7 +62,6 @@ def WKT_matches_geoJSON(wkt, gj):
         return [int(p[0]), int(p[1])]
 
     wkt_points = list(map(listize, wkt_points))
-    print(wkt_points)
 
     coords = json.loads(gj)["coordinates"][0]
 
@@ -86,5 +85,127 @@ def check_regions(expected, response):
                 matched = True
         assert matched, "Expected region {} not found in response".format(
             exp_reg["code"]
+        )
+    return True
+
+
+# salmon species
+CHUM = {"common_name": "Chum", "scientific_name": "Oncorhynchus keta", "subgroup": None}
+
+PNKO = {
+    "common_name": "Pink",
+    "scientific_name": "Oncorhynchus gorbuscha",
+    "subgroup": "Odd",
+}
+
+PNKE = {
+    "common_name": "Pink",
+    "scientific_name": "Oncorhynchus gorbuscha",
+    "subgroup": "Even",
+}
+
+
+# make a species into an ORM taxon for the database
+def make_taxon(params):
+    return Taxon(
+        common_name=params["common_name"],
+        scientific_name=params["scientific_name"],
+        subgroup=params["subgroup"],
+    )
+
+
+# conservation units - 2 chum, and one for each pink group
+# so we can test various combinations of species and area
+
+# conservation units don't have a "kind" attribute in the database,
+# it is included here so these constants can be used with check_regions()
+CUC1 = {
+    "kind": "conservation_unit",
+    "name": "CU Chum 1",
+    "code": "CUC1",
+    "boundary": "POLYGON((0 0, 0 10, 10 10, 10 0, 0 0))",
+    "outlet": "POINT(0 0)",
+}
+
+CUC2 = {
+    "kind": "conservation_unit",
+    "name": "CU Chum 2",
+    "code": "CUC2",
+    "boundary": "POLYGON((5 5, 5 15, 15 15, 15 5, 5 5))",
+    "outlet": "POINT(5 5)",
+}
+
+CUPO = {
+    "kind": "conservation_unit",
+    "name": "CU Pink Odd",
+    "code": "CUPO",
+    "boundary": "POLYGON((20 20, 20 30, 30 30, 30 20, 20 20))",
+    "outlet": "POINT(20 20)",
+}
+
+CUPE = {
+    "kind": "conservation_unit",
+    "name": "CU Pink Even",
+    "code": "CUPE",
+    "boundary": "POLYGON((0 0, 0 15, 15 15, 15 0, 0 0))",
+    "outlet": "POINT(0 0)",
+}
+
+
+# make a sample conservation unit into an ORM CU for the database
+def make_cu(params):
+    return ConservationUnit(
+        name=params["name"],
+        code=params["code"],
+        boundary=params["boundary"],
+        outlet=params["outlet"],
+    )
+
+
+# populations - 2 chum, one for each pink group
+# in the database, the population  table mostly links to
+# other tables, including phenology, taxon, and conservation_unit.
+# these objects are used for data verification.
+
+# chum population in CU CUC1
+PCH1 = {"taxon": CHUM, "conservation_unit": CUC1}
+
+# chum population in CU CUC2
+PCH2 = {"taxon": CHUM, "conservation_unit": CUC2}
+
+# Odd Year Pink population in CU CUPO
+PPKO = {"taxon": PNKO, "conservation_unit": CUPO}
+
+# Even year Pink population in CU CUPE
+PPKE = {"taxon": PNKE, "conservation_unit": CUPE}
+
+
+def make_population(taxon, conservation_unit):
+    return Population(
+        taxon_id=taxon.id,
+        conservation_unit_id=conservation_unit.id,
+        overwinter=False,
+    )
+
+
+# "expected" populations should be a list of taxon-conservation unit
+# dicts, response is the object returned by the population API
+def check_populations(expected, response):
+    assert len(response) == len(expected)
+
+    for exp_pop in expected:
+        matched = False
+        for res_pop in response:
+            if exp_pop["conservation_unit"]["code"] == res_pop["cu_code"]:
+                assert exp_pop["conservation_unit"]["name"] == res_pop["cu_name"]
+                WKT_matches_geoJSON(
+                    exp_pop["conservation_unit"]["boundary"], res_pop["cu_boundary"]
+                )
+                assert exp_pop["taxon"]["common_name"] == res_pop["common_name"]
+                assert exp_pop["taxon"]["scientific_name"] == res_pop["scientific_name"]
+                assert exp_pop["taxon"]["subgroup"] == res_pop["subgroup"]
+                matched = True
+        assert matched, "Expected population {} not found in response".format(
+            exp_pop["conservation_unit"]["code"]
         )
     return True

@@ -1,17 +1,20 @@
 import pytest
 import json
-
-# API to test
 from scip.api import region
 
 # test data
 from sample_data import WAT1, WAT2, WAT3, BAS1, check_regions
+from sample_data import CUC1, CUC2, CUPO, CUPE
 
 
 # test getting a list of all regions of a type
 @pytest.mark.parametrize(
     "kind,expected",
-    [("watershed", [WAT1, WAT2, WAT3]), ("basin", [BAS1]), ("conservation_unit", [])],
+    [
+        ("watershed", [WAT1, WAT2, WAT3]),
+        ("basin", [BAS1]),
+        ("conservation_unit", [CUC1, CUC2, CUPO, CUPE]),
+    ],
 )
 def test_region_listing(db_populated_session, kind, expected):
     response = region(db_populated_session, kind=kind)
@@ -61,6 +64,7 @@ def test_region_name_parameter(db_populated_session, name, kind, expected):
         (0, 0, "watershed", [WAT1]),
         (0, 0, "basin", [BAS1]),
         (10, 10, "watershed", [WAT1, WAT2]),
+        (0, 0, "conservation_unit", [CUC1, CUPE]),
     ],
 )
 def test_region_overlap_point(db_populated_session, x, y, kind, expected):
