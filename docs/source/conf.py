@@ -6,6 +6,8 @@
 import sys
 import os
 
+# add the main codebase to sphinx's path.
+# this is used by autodoc to read and document function signatures
 sys.path.insert(0, os.path.abspath("../../"))
 
 
