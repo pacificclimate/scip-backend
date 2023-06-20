@@ -18,7 +18,7 @@ from sample_data import CUC1, CUC2, CUPO, CUPE
 )
 def test_region_listing(db_populated_session, kind, expected):
     response = region(db_populated_session, kind=kind)
-    assert check_regions(expected, response)
+    check_regions(expected, response)
 
 
 # test a nonexistant type
@@ -40,7 +40,7 @@ def test_bad_kind(db_populated_session):
 )
 def test_region_code_parameter(db_populated_session, code, kind, expected):
     response = region(db_populated_session, kind=kind, code=code)
-    assert check_regions(expected, response)
+    check_regions(expected, response)
 
 
 # test requesting a region by name
@@ -54,7 +54,7 @@ def test_region_code_parameter(db_populated_session, code, kind, expected):
 )
 def test_region_name_parameter(db_populated_session, name, kind, expected):
     response = region(db_populated_session, kind=kind, name=name)
-    assert check_regions(expected, response)
+    check_regions(expected, response)
 
 
 # test requesting a region containing a point
@@ -70,10 +70,10 @@ def test_region_name_parameter(db_populated_session, name, kind, expected):
 def test_region_overlap_point(db_populated_session, x, y, kind, expected):
     wkt = "POINT({} {})".format(x, y)
     response = region(db_populated_session, kind=kind, overlap=wkt)
-    assert check_regions(expected, response)
+    check_regions(expected, response)
 
 
 # test requestion a region overlapping a polygon
 def test_region_overlap_polygon(db_populated_session):
     response = region(db_populated_session, kind="watershed", overlap=BAS1["boundary"])
-    assert check_regions([WAT1, WAT2], response)
+    check_regions([WAT1, WAT2], response)

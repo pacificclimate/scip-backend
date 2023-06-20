@@ -3,7 +3,7 @@ This application accesses a PostGIS database containing information on predefine
 
 ## Installation for development
 
-The SCIP backend uses `poetry` to manage virtual environments and package installation. Once you have `poetry` installed you can clone this repository and set up the virtual environment with `poetry`:
+The SCIP backend uses [Poetry](https://python-poetry.org/) to manage virtual environments and package installation. Once you have Poetry installed and this repository cloned, you can use Poetry to set up and manage the virtual environment:
 
 ```bash
 $ git clone http://github.com/pacificclimate/scip-backend
@@ -11,7 +11,7 @@ $ cd scip-backend
 $ poetry install
 ```
 
-This is a `flask` application; it is configured by setting environment variables for `flask` to read:
+This is a [Flask](https://flask.palletsprojects.com/en/2.3.x/) application; it is configured by setting environment variables for Flask to read:
 
 ```bash
 $ export FLASK_APP=scip.wsgi:app #what app to run

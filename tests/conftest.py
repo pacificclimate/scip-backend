@@ -46,25 +46,25 @@ def db_populated_session(db_engine):
     session = sessionmaker(bind=db_engine)()
     with maintain_schema("salmon_geometry, public", session):
         # add regions
-        session.add(make_region(WAT1))
-        session.add(make_region(WAT2))
-        session.add(make_region(WAT3))
-        session.add(make_region(BAS1))
+        session.add(make_region(**WAT1))
+        session.add(make_region(**WAT2))
+        session.add(make_region(**WAT3))
+        session.add(make_region(**BAS1))
 
         # add salmon taxons
-        chum = make_taxon(CHUM)
-        pink_even = make_taxon(PNKE)
-        pink_odd = make_taxon(PNKO)
+        chum = make_taxon(**CHUM)
+        pink_even = make_taxon(**PNKE)
+        pink_odd = make_taxon(**PNKO)
 
         session.add(chum)
         session.add(pink_even)
         session.add(pink_odd)
 
         # add conservation units
-        cuc1 = make_cu(CUC1)
-        cuc2 = make_cu(CUC2)
-        cupo = make_cu(CUPO)
-        cupe = make_cu(CUPE)
+        cuc1 = make_cu(**CUC1)
+        cuc2 = make_cu(**CUC2)
+        cupo = make_cu(**CUPO)
+        cupe = make_cu(**CUPE)
 
         session.add(cuc1)
         session.add(cuc2)

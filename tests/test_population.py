@@ -8,7 +8,7 @@ from sample_data import PCH1, PCH2, PPKO, PPKE, check_populations
 # check listing of all populations
 def test_population_listing(db_populated_session):
     response = population(db_populated_session)
-    assert check_populations([PCH1, PCH2, PPKO, PPKE], response)
+    check_populations([PCH1, PCH2, PPKO, PPKE], response)
 
 
 # check listing by species
@@ -17,7 +17,7 @@ def test_population_listing(db_populated_session):
 )
 def test_population_by_species(db_populated_session, species, expected):
     response = population(db_populated_session, common_name=species)
-    assert check_populations(expected, response)
+    check_populations(expected, response)
 
 
 # check listing by subgroup
@@ -34,7 +34,7 @@ def test_population_by_species(db_populated_session, species, expected):
 )
 def test_population_by_subgroup(db_populated_session, species, subgroup, expected):
     response = population(db_populated_session, common_name=species, subgroup=subgroup)
-    assert check_populations(expected, response)
+    check_populations(expected, response)
 
 
 @pytest.mark.parametrize(
@@ -53,7 +53,7 @@ def test_population_by_subgroup(db_populated_session, species, subgroup, expecte
 def test_population_by_overlap_point(db_populated_session, x, y, species, expected):
     wkt = "POINT({} {})".format(x, y)
     response = population(db_populated_session, common_name=species, overlap=wkt)
-    assert check_populations(expected, response)
+    check_populations(expected, response)
 
 
 @pytest.mark.parametrize(
@@ -67,3 +67,5 @@ def test_population_by_overlap_point(db_populated_session, x, y, species, expect
 )
 def test_population_by_overlap_polygon(db_populated_session, species, expected):
     wkt = "POLYGON((15 15, 15 20, 20 20, 20 15, 15 15))"
+    response = population(db_populated_session, common_name=species, overlap=wkt)
+    check_populations(expected, response)

@@ -41,13 +41,13 @@ BAS1 = {
 
 
 # make a sample region into an ORM Region for database insertion
-def make_region(params):
+def make_region(kind, name, code, boundary, outlet):
     return Region(
-        kind=params["kind"],
-        name=params["name"],
-        code=params["code"],
-        boundary=params["boundary"],
-        outlet=params["outlet"],
+        kind=kind,
+        name=name,
+        code=code,
+        boundary=boundary,
+        outlet=outlet,
     )
 
 
@@ -86,7 +86,6 @@ def check_regions(expected, response):
         assert matched, "Expected region {} not found in response".format(
             exp_reg["code"]
         )
-    return True
 
 
 # salmon species
@@ -106,11 +105,11 @@ PNKE = {
 
 
 # make a species into an ORM taxon for the database
-def make_taxon(params):
+def make_taxon(common_name, scientific_name, subgroup):
     return Taxon(
-        common_name=params["common_name"],
-        scientific_name=params["scientific_name"],
-        subgroup=params["subgroup"],
+        common_name=common_name,
+        scientific_name=scientific_name,
+        subgroup=subgroup,
     )
 
 
@@ -153,12 +152,13 @@ CUPE = {
 
 
 # make a sample conservation unit into an ORM CU for the database
-def make_cu(params):
+def make_cu(name, code, boundary, outlet, kind):
+    # kind argument is just ignored - used for verification only
     return ConservationUnit(
-        name=params["name"],
-        code=params["code"],
-        boundary=params["boundary"],
-        outlet=params["outlet"],
+        name=name,
+        code=code,
+        boundary=boundary,
+        outlet=outlet,
     )
 
 
@@ -208,4 +208,3 @@ def check_populations(expected, response):
         assert matched, "Expected population {} not found in response".format(
             exp_pop["conservation_unit"]["code"]
         )
-    return True
