@@ -38,10 +38,10 @@ def population(
                 Taxon.common_name.label("common_name"),
                 Taxon.scientific_name.label("scientific_name"),
                 Taxon.subgroup.label("subgroup"),
-                ConservationUnit.name.label("cu_name"),
-                ConservationUnit.code.label("cu_code"),
-                func.ST_AsGeoJSON(ConservationUnit.boundary).label("cu_boundary"),
-                func.ST_ASGeoJSON(ConservationUnit.outlet).label("cu_outlet"),
+                ConservationUnit.name.label("name"),
+                ConservationUnit.code.label("code"),
+                func.ST_AsGeoJSON(ConservationUnit.boundary).label("boundary"),
+                func.ST_ASGeoJSON(ConservationUnit.outlet).label("outlet"),
             )
             .join(Population, Population.conservation_unit_id == ConservationUnit.id)
             .join(Taxon, Population.taxon_id == Taxon.id)
@@ -62,19 +62,30 @@ def population(
 
         results = q.all()
 
-        result_list = []
-        for result in results:
-            res = {}
-            for att in [
-                "common_name",
-                "scientific_name",
-                "subgroup",
-                "cu_name",
-                "cu_code",
-                "cu_outlet",
-                "cu_boundary",
-            ]:
-                res[att] = getattr(result, att)
-            result_list.append(res)
+        result_list = [
+            {
+                att: getattr(result, att)
+                for att in [
+                    "common_name",
+                    "scientific_name",
+                    "subgroup",
+                    "name",
+                    "code",
+                    "outlet",
+                    "boundary",
+                ]
+            }
+            for result in results
+        ]
+
+        def cu_dict(x):
+            cu = {}
+            for key in ["name", "code", "outlet", "boundary"]:
+                val = x.pop(key)
+                cu[key] = val
+            x["conservation_unit"] = cu
+            return x
+
+        result_list = list(map(cu_dict, result_list))
 
         return result_list

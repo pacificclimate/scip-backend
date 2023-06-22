@@ -196,10 +196,17 @@ def check_populations(expected, response):
     for exp_pop in expected:
         matched = False
         for res_pop in response:
-            if exp_pop["conservation_unit"]["code"] == res_pop["cu_code"]:
-                assert exp_pop["conservation_unit"]["name"] == res_pop["cu_name"]
+            if (
+                exp_pop["conservation_unit"]["code"]
+                == res_pop["conservation_unit"]["code"]
+            ):
+                assert (
+                    exp_pop["conservation_unit"]["name"]
+                    == res_pop["conservation_unit"]["name"]
+                )
                 WKT_matches_geoJSON(
-                    exp_pop["conservation_unit"]["boundary"], res_pop["cu_boundary"]
+                    exp_pop["conservation_unit"]["boundary"],
+                    res_pop["conservation_unit"]["boundary"],
                 )
                 assert exp_pop["taxon"]["common_name"] == res_pop["common_name"]
                 assert exp_pop["taxon"]["scientific_name"] == res_pop["scientific_name"]

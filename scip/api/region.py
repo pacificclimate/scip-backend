@@ -67,18 +67,23 @@ def region(session, kind, overlap=None, name=None, code=None):
 
         results = q.all()
 
-        result_list = []
-        for result in results:
-            res = {}
-            res["name"] = getattr(result, "name")
-            res["code"] = getattr(result, "code")
-            res["kind"] = (
-                "conservation_unit"
-                if (kind == "conservation_unit")
-                else getattr(result, "kind")
-            )
-            res["outlet"] = getattr(result, "outlet")
-            res["boundary"] = getattr(result, "boundary")
-            result_list.append(res)
+        result_list = [
+            {
+                att: getattr(result, att)
+                for att in [
+                    "name",
+                    "code",
+                    "outlet",
+                    "boundary",
+                ]
+            }
+            for result in results
+        ]
+
+        def assign_kind(x):
+            x["kind"] = kind
+            return x
+
+        result_list = list(map(assign_kind, result_list))
 
         return result_list
