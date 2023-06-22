@@ -5,7 +5,7 @@ on: push
 jobs:
   test:
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout
@@ -19,9 +19,8 @@ jobs:
       - name: Install OS Dependencies
         run: |
           sudo apt update
-          sudo apt install python-dev
-          sudo apt purge postgresql-client-14 postgresql-server-dev-all
-          sudo apt install postgresql-12-postgis-3
+          sudo apt install python3-dev
+          sudo apt-get install -yq postgresql-14-postgis-3
 
       - name: Install Poetry
         run: |
