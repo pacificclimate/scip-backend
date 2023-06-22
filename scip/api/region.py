@@ -14,7 +14,7 @@ def region(session, kind, overlap=None, name=None, code=None):
     :param name: a string denoting the full name of the region
     :param code: a four letter unique code assigned to the region
 
-    :return: a list of objects representing regions that fulfill the specified criteria.
+    :return: a list of objects representing regions that fulfill all the specified criteria.
         For each region, the `kind`, `name`, and `code` are provided, along with two
         geoJSON objects representing the region's geometry: `boundary` describes the
         region's extent, and `outlet` is a geoJSON point representing the most downstream
@@ -23,8 +23,13 @@ def region(session, kind, overlap=None, name=None, code=None):
     """
     with maintain_schema("public, salmon_geometry", session):
         # check kind
-        if kind not in ["watershed", "basin", "conservation_unit"]:
-            raise ValueError("Unsupported region kind: {}".format(kind))
+        region_kinds = ["watershed", "basin", "conservation_unit"]
+        if kind not in region_kinds:
+            raise ValueError(
+                "Unsupported region kind: {}. Supported kinds: {}".format(
+                    kind, region_kinds
+                )
+            )
 
         # TODO: check other arguments, especially overlap
 

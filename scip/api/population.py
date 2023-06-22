@@ -12,8 +12,8 @@ def population(
     subgroup=None,
     name=None,
 ):
-    """Return information about salmon populations in the database that fulfill
-    specified parameters.
+    """Return information about salmon populations in the database that fulfills
+    all specified parameters. No parameters are required.
 
     :param session: (sqlalchemy.orm.session.Session) a database Session object
     :param overlap: a WKT string specifying a geometry that overlaps with the desired populations

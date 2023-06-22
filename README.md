@@ -15,7 +15,7 @@ This is a [Flask](https://flask.palletsprojects.com/en/2.3.x/) application; it i
 
 ```bash
 $ export FLASK_APP=scip.wsgi:app #what app to run
-$ export DB="location-of-postGIS-database" #where to get data
+$ export DB="postgresql://user:password@server:port/database" #where to get data
 $ export FLASK_DEBUG=1 #print error messages
 ```
 
