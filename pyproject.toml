@@ -10,7 +10,7 @@ packages = [ {include = "scip"} ]
 [tool.poetry.dependencies]
 python = "^3.8"
 geoalchemy2 = "^0.13.3"
-salmon-occurrence = {git = "https://github.com/pacificclimate/scip-db", rev = "init"}
+salmon-occurrence = {git = "https://github.com/pacificclimate/scip-db/"}
 flask = "^2.3.2"
 flask-cors = "^3.0.10"
 flask-sqlalchemy = "^3.0.3"

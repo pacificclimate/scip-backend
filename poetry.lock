@@ -778,9 +778,9 @@ SQLAlchemy = "*"
 
 [package.source]
 type = "git"
-url = "https://github.com/pacificclimate/scip-db"
-reference = "init"
-resolved_reference = "2c49a4482e7ac4cc16da63ec00cbf7abe3836c1f"
+url = "https://github.com/pacificclimate/scip-db/"
+reference = "HEAD"
+resolved_reference = "4727db63fc12487e91e0082dd2738c197d9acaf2"
 
 [[package]]
 name = "scramp"
@@ -1144,4 +1144,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "466e4a8ca89b9c09a6a56293dbde29f494a20f64d0aea6c901f80389d2e36de6"
+content-hash = "8acba75502c4f41dffd707582021442f288d64de36783cb6ba0dde85d6b0f69e"
