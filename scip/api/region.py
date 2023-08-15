@@ -57,7 +57,6 @@ def region(
                     ConservationUnit.code.label("code"),
                     func.ST_AsGeoJSON(ConservationUnit.boundary).label("boundary"),
                     func.ST_ASGeoJSON(ConservationUnit.outlet).label("outlet"),
-                    func.ST_Area(Region.boundary).label("area"),
                 )
             else:
                 # conservation unit with species - join to Population table
@@ -68,7 +67,6 @@ def region(
                         ConservationUnit.code.label("code"),
                         func.ST_AsGeoJSON(ConservationUnit.boundary).label("boundary"),
                         func.ST_ASGeoJSON(ConservationUnit.outlet).label("outlet"),
-                        func.ST_Area(Region.boundary).label("area"),
                     )
                     .join(
                         Population,
@@ -101,7 +99,6 @@ def region(
                     Region.kind.label("kind"),
                     func.ST_AsGeoJSON(Region.boundary).label("boundary"),
                     func.ST_AsGeoJSON(Region.outlet).label("outlet"),
-                    func.ST_Area(Region.boundary).label("area"),
                 ).filter(Region.kind == kind)
             else:
                 # watershed/basin with species parameters - do a spatial
@@ -114,7 +111,6 @@ def region(
                         Region.kind.label("kind"),
                         func.ST_AsGeoJSON(Region.boundary).label("boundary"),
                         func.ST_AsGeoJSON(Region.outlet).label("outlet"),
-                        func.ST_Area(Region.boundary).label("area"),
                     )
                     .join(
                         ConservationUnit,
@@ -148,7 +144,7 @@ def region(
         result_list = [
             {
                 att: getattr(result, att)
-                for att in ["name", "code", "outlet", "boundary", "area"]
+                for att in ["name", "code", "outlet", "boundary"]
             }
             for result in results
         ]

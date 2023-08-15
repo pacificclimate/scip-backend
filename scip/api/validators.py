@@ -67,7 +67,7 @@ def parse_wkt(wkt):
             + regex_point
             + ", "
             + regex_point
-            + ", ("
+            + "(, "
             + regex_point
             + ")*\)\)$"
         )

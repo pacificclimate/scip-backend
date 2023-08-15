@@ -77,3 +77,44 @@ def test_region_overlap_point(db_populated_session, x, y, kind, expected):
 def test_region_overlap_polygon(db_populated_session):
     response = region(db_populated_session, kind="watershed", overlap=BAS1["boundary"])
     check_regions([WAT1, WAT2], response)
+
+
+@pytest.mark.parametrize(
+    "species,subgroup,kind,expected",
+    [
+        ("Pink", "Odd", "conservation_unit", [CUPO]),
+        ("Pink", "Even", "conservation_unit", [CUPE]),
+        ("Pink", None, "conservation_unit", [CUPO, CUPE]),
+        ("Pink", "Odd", "basin", []),
+        ("Pink", "Even", "basin", [BAS1]),
+        ("Chum", None, "conservation_unit", [CUC1, CUC2]),
+        ("Chum", None, "watershed", [WAT1, WAT2]),
+    ],
+)
+def test_region_by_species(db_populated_session, species, subgroup, kind, expected):
+    response = region(
+        db_populated_session, kind=kind, common_name=species, subgroup=subgroup
+    )
+    check_regions(expected, response)
+
+
+@pytest.mark.parametrize(
+    "species,subgroup,boundary,kind,expected",
+    [
+        ("Pink", "Odd", WAT1, "watershed", []),
+        ("Pink", "Odd", WAT3, "watershed", [WAT3]),
+        ("Pink", "Even", WAT1, "watershed", [WAT1, WAT2]),
+        ("Pink", "Even", WAT1, "basin", [BAS1]),
+    ],
+)
+def test_region_by_species_and_overlap(
+    db_populated_session, species, subgroup, boundary, kind, expected
+):
+    response = region(
+        db_populated_session,
+        kind=kind,
+        common_name=species,
+        subgroup=subgroup,
+        overlap=boundary["boundary"],
+    )
+    check_regions(expected, response)
