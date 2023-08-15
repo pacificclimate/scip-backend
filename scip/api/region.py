@@ -1,10 +1,10 @@
-from salmon_occurrence import Region, ConservationUnit
+from salmon_occurrence import Region, ConservationUnit, Population, Taxon
 from sqlalchemy_sqlschema import maintain_schema
 from sqlalchemy_sqlschema.sql import get_schema
 from sqlalchemy import func
 
 
-def region(session, kind, overlap=None, name=None, code=None):
+def region(session, kind, overlap=None, name=None, code=None, common_name=None, subgroup=None):
     """Return information about regions in the database that meet
     the specified parameters.
 
@@ -13,6 +13,8 @@ def region(session, kind, overlap=None, name=None, code=None):
     :param overlap: a WKT string specifying a geometry that overlaps with the desired region
     :param name: a string denoting the full name of the region
     :param code: a four letter unique code assigned to the region
+    :param common_name: a salmon species - chum, coho, pink, or sockeye
+    :param subgroup: a species subtype
 
     :return: a list of objects representing regions that fulfill all the specified criteria.
         For each region, the `kind`, `name`, and `code` are provided, along with two
@@ -31,18 +33,55 @@ def region(session, kind, overlap=None, name=None, code=None):
                 )
             )
 
-        # TODO: check other arguments, especially overlap
+        # TODO: check other arguments, especially overlap, 
+        # common name, kind
 
-        # conservation units and other types of region are kept seperately
-        # in the databse, but we want them to have the same API access
+        # This API runs four types of queries that take the same parameters
+        # and return identically formatted results but are different "under 
+        # the hood." API requests may either target conservation units
+        # (ConservationUnit table) or other kinds of region (Region table). 
+        # Requests may also either include species parameters (necessitating
+        # a join to the Populations table for species info) or not specify
+        # species parameters. 
+        # So code here has to separately handle 
+        #   1) Conservation units without species
+        #   2) Conservation units with species
+        #   3) Basin/watershed without species
+        #   4) Basin/watershed with species
+
         if kind == "conservation_unit":
-            q = session.query(
-                ConservationUnit.name.label("name"),
-                ConservationUnit.code.label("code"),
-                func.ST_AsGeoJSON(ConservationUnit.boundary).label("boundary"),
-                func.ST_ASGeoJSON(ConservationUnit.outlet).label("outlet"),
-            )
+            if not common_name: 
+                #conservation unit without species
+                q = session.query(
+                    ConservationUnit.name.label("name"),
+                    ConservationUnit.code.label("code"),
+                    func.ST_AsGeoJSON(ConservationUnit.boundary).label("boundary"),
+                    func.ST_ASGeoJSON(ConservationUnit.outlet).label("outlet"),
+                    func.ST_Area(Region.boundary).label("area")
+                )
+            else:
+                # conservation unit with species - join to Population table
+                # to get species presence data
+                q = (
+                    session.query(
+                        ConservationUnit.name.label("name"),
+                        ConservationUnit.code.label("code"),
+                        func.ST_AsGeoJSON(ConservationUnit.boundary).label("boundary"),
+                        func.ST_ASGeoJSON(ConservationUnit.outlet).label("outlet"),
+                        func.ST_Area(Region.boundary).label("area")
+                    )
+                    .join(Population, Population.conservation_unit_id == ConservationUnit.id)
+                    .join(Taxon, Population.taxon_id == Taxon.id)
+                    .filter(Taxon.common_name == common_name)
+                )
+                
+                
+                if subgroup:
+                    q = q.filter(Taxon.subgroup == subgroup)
+                q = q.distinct(ConservationUnit.name)
 
+
+            #further optional filtering common to all conservation unit queries
             if overlap:
                 q = q.filter(ConservationUnit.boundary.ST_Intersects(overlap))
 
@@ -53,14 +92,41 @@ def region(session, kind, overlap=None, name=None, code=None):
                 q = q.filter(ConservationUnit.code == code)
 
         else:
-            q = session.query(
-                Region.name.label("name"),
-                Region.code.label("code"),
-                Region.kind.label("kind"),
-                func.ST_AsGeoJSON(Region.boundary).label("boundary"),
-                func.ST_AsGeoJSON(Region.outlet).label("outlet"),
-            ).filter(Region.kind == kind)
+            if not common_name:
+                #watershed/basin without species
+                q = session.query(
+                    Region.name.label("name"),
+                    Region.code.label("code"),
+                    Region.kind.label("kind"),
+                    func.ST_AsGeoJSON(Region.boundary).label("boundary"),
+                    func.ST_AsGeoJSON(Region.outlet).label("outlet"),
+                    func.ST_Area(Region.boundary).label("area")
+                ).filter(Region.kind == kind)
+            else:
+                # watershed/basin with species parameters - do a spatial
+                # join with ConservationUnit, to access species info via
+                # Population
+                q = (
+                    session.query(
+                    Region.name.label("name"),
+                    Region.code.label("code"),
+                    Region.kind.label("kind"),
+                    func.ST_AsGeoJSON(Region.boundary).label("boundary"),
+                    func.ST_AsGeoJSON(Region.outlet).label("outlet"),
+                    func.ST_Area(Region.boundary).label("area")
+                    )
+                    .join(ConservationUnit, ConservationUnit.boundary.ST_Intersects(Region.boundary))
+                    .join(Population, Population.conservation_unit_id == ConservationUnit.id)
+                    .join(Taxon, Population.taxon_id == Taxon.id)
+                    .filter(Region.kind == kind)
+                    .filter(Taxon.common_name == common_name)
+                )
+                
+                if subgroup:
+                    q = q.filter(Taxon.subgroup == subgroup)
+                q = q.distinct(Region.name)
 
+            #further optional parameters common to all watershed/basin queries
             if overlap:
                 q = q.filter(Region.boundary.ST_Intersects(overlap))
 
@@ -80,6 +146,7 @@ def region(session, kind, overlap=None, name=None, code=None):
                     "code",
                     "outlet",
                     "boundary",
+                    "area"
                 ]
             }
             for result in results
