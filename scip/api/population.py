@@ -2,6 +2,7 @@ from salmon_occurrence import ConservationUnit, Taxon, Reference, Population, Ph
 from sqlalchemy_sqlschema import maintain_schema
 from sqlalchemy_sqlschema.sql import get_schema
 from sqlalchemy import func
+from scip.api.validators import parse_common_name, parse_subgroup
 
 
 def population(
@@ -17,8 +18,7 @@ def population(
 
     :param session: (sqlalchemy.orm.session.Session) a database Session object
     :param overlap: a WKT string specifying a geometry that overlaps with the desired populations
-    :param common_name: common name of the salmon species of interest
-    :param scientific_name: scientific name of the salmon species of interest
+    :param common_name: a salmon species - Chinook Chum, Coho, Pink, or Sockeye
     :param subgroup: parameter designating a sub-species taxon, such as `lake` or `river` for sockeye salmon
     :param name: name of the conservation unit that encloses the population's range
 
@@ -28,7 +28,10 @@ def population(
         and `outlet` provides the most downstream point of the extent according to the RVIC routed flow data.
 
     """
-    # TODO: verify input arguments
+    if common_name:
+        common_name = parse_common_name(common_name)
+    if subgroup:
+        subgroup = parse_subgroup(common_name, subgroup)
 
     # TODO: return additional data
 
@@ -55,8 +58,6 @@ def population(
 
         if common_name:
             q = q.filter(Taxon.common_name == common_name)
-        if scientific_name:
-            q = q.filter(Taxon.scientific_name == scientific_name)
         if subgroup:
             q = q.filter(Taxon.subgroup == subgroup)
 
