@@ -29,9 +29,9 @@ def population(
 
     """
     if common_name:
-        common_name = parse_common_name(common_name)
+        common_name = parse_common_name(session, common_name)
     if subgroup:
-        subgroup = parse_subgroup(common_name, subgroup)
+        subgroup = parse_subgroup(session, common_name, subgroup)
 
     # TODO: return additional data
 

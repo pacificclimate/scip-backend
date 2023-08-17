@@ -1,10 +1,22 @@
 # helper functions used to validate request parameters
 import re
+from salmon_occurrence import Region, ConservationUnit, Taxon
+from sqlalchemy import func
+from scip.api.taxon import taxon
 
 
-def parse_region_kind(kind):
+def database_column_values(session, column):
+    # returns a list for containing every value present in a specific
+    # column in the database. Used to see if a user-supplied parameter
+    # exists in the database.
+    q = session.query(column).distinct().all()
+    return list(map(lambda x: x[0], q))
+
+
+def parse_region_kind(session, kind):
     k = kind.lower()
-    kinds = ["basin", "watershed", "conservation_unit"]
+    kinds = database_column_values(session, Region.kind)
+    kinds.append("conservation_unit")
     if k in kinds:
         return k
     else:
@@ -13,8 +25,8 @@ def parse_region_kind(kind):
         )
 
 
-def parse_common_name(cn):
-    species = ["Chinook", "Chum", "Coho", "Pink", "Sockeye"]
+def parse_common_name(session, cn):
+    species = database_column_values(session, Taxon.common_name)
     s = cn.lower().capitalize()
     if s in species:
         return s
@@ -24,16 +36,20 @@ def parse_common_name(cn):
         )
 
 
-def parse_subgroup(species, subgroup):
-    subgroups = {"Odd": "Pink", "Even": "Pink", "Lake": "Sockeye", "River": "Sockeye"}
+def parse_subgroup(session, species, subgroup):
+    taxons = taxon(session)
+
+    sp = species.lower().capitalize()
     sg = subgroup.lower().capitalize()
 
-    if sg in subgroups and subgroups[sg] == species:
+    found = list(
+        filter(lambda t: t["common_name"] == sp and t["subgroup"] == sg, taxons)
+    )
+
+    if len(found) > 0:
         return sg
-    elif species in subgroups.values():
-        raise ValueError("Unknown subgroup of species {}: {}".format(species, sg))
-    elif species in ["Chinook", "Chum", "Coho"]:
-        raise ValueError("No subgroups for {} are known".format(species))
+    elif parse_common_name(session, sp):
+        raise ValueError("Unknown subgroup of species {}: {}".format(sp, sg))
     else:
         raise ValueError("Unknown salmon species {}".format(species))
 

@@ -15,6 +15,7 @@ This backend serves data about predefined regions and the locations and details 
    overview
    api/region
    api/population
+   api/taxon
 
 
 

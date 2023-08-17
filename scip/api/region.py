@@ -1,7 +1,5 @@
-from salmon_occurrence import Region, ConservationUnit, Population, Taxon
 from sqlalchemy_sqlschema import maintain_schema
 from sqlalchemy_sqlschema.sql import get_schema
-from sqlalchemy import func
 from scip.api.validators import parse_region_kind, parse_common_name, parse_subgroup
 from scip.api.region_helpers import build_cu_query, build_region_query
 
@@ -29,11 +27,11 @@ def region(
     """
     with maintain_schema("public, salmon_geometry", session):
         # check parameters
-        kind = parse_region_kind(kind)
+        kind = parse_region_kind(session, kind)
         if common_name:
-            common_name = parse_common_name(common_name)
+            common_name = parse_common_name(session, common_name)
         if subgroup:
-            subgroup = parse_subgroup(common_name, subgroup)
+            subgroup = parse_subgroup(session, common_name, subgroup)
 
         # TODO: check overlap, see https://github.com/pacificclimate/scip-frontend/issues/43
 

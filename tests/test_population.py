@@ -13,7 +13,7 @@ def test_population_listing(db_populated_session):
 
 # check listing by species
 @pytest.mark.parametrize(
-    "species,expected", [["Chum", [PCH1, PCH2]], ["Pink", [PPKO, PPKE]], ["Coho", []]]
+    "species,expected", [["Chum", [PCH1, PCH2]], ["Pink", [PPKO, PPKE]]]
 )
 def test_population_by_species(db_populated_session, species, expected):
     response = population(db_populated_session, common_name=species)

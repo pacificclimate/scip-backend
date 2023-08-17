@@ -17,30 +17,30 @@ from sample_data import WAT1, WAT2, WAT3, BAS1
         ("banana", "error"),
     ],
 )
-def test_parsing_regions(kind, expected):
+def test_parsing_regions(db_populated_session, kind, expected):
     if expected is "error":
         with pytest.raises(ValueError) as e:
-            parse_region_kind(kind)
+            parse_region_kind(db_populated_session, kind)
     else:
-        assert parse_region_kind(kind) == expected
+        assert parse_region_kind(db_populated_session, kind) == expected
 
 
 @pytest.mark.parametrize(
     "species,expected",
     [
         ("Chum", "Chum"),
-        ("sockeye", "Sockeye"),
+        ("pink", "Pink"),
         ("Chummmm", "error"),
         ("Banana", "error"),
         ("489", "error"),
     ],
 )
-def test_parsing_species(species, expected):
+def test_parsing_species(db_populated_session, species, expected):
     if expected is "error":
         with pytest.raises(ValueError) as e:
-            parse_common_name(species)
+            parse_common_name(db_populated_session, species)
     else:
-        assert parse_common_name(species) == expected
+        assert parse_common_name(db_populated_session, species) == expected
 
 
 @pytest.mark.parametrize(
@@ -55,12 +55,12 @@ def test_parsing_species(species, expected):
         ("Chum", "Banana", "error"),
     ],
 )
-def test_parsing_subgroups(species, subgroup, expected):
+def test_parsing_subgroups(db_populated_session, species, subgroup, expected):
     if expected is "error":
         with pytest.raises(ValueError) as e:
-            parse_subgroup(species, subgroup)
+            parse_subgroup(db_populated_session, species, subgroup)
     else:
-        assert parse_subgroup(species, subgroup) == expected
+        assert parse_subgroup(db_populated_session, species, subgroup) == expected
 
 
 @pytest.mark.parametrize("region", [WAT1, WAT2, WAT3, BAS1])
