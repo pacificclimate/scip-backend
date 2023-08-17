@@ -3,6 +3,7 @@ from sqlalchemy_sqlschema import maintain_schema
 from sqlalchemy_sqlschema.sql import get_schema
 from sqlalchemy import func
 from scip.api.validators import parse_region_kind, parse_common_name, parse_subgroup
+from scip.api.region_helpers import build_cu_query, build_region_query
 
 
 def region(
@@ -36,109 +37,22 @@ def region(
 
         # TODO: check overlap, see https://github.com/pacificclimate/scip-frontend/issues/43
 
-        # This API runs four types of queries that take the same parameters
-        # and return identically formatted results but are different "under
-        # the hood." API requests may either target conservation units
-        # (ConservationUnit table) or other kinds of region (Region table).
-        # Requests may also either include species parameters (necessitating
-        # a join to the Populations table for species info) or not specify
-        # species parameters.
-        # So code here has to separately handle
-        #   1) Conservation units without species
-        #   2) Conservation units with species
-        #   3) Basin/watershed without species
-        #   4) Basin/watershed with species
+        # This API presents data from multiple locations in the database, depending
+        # on the values of the "kind" attribute. Some regions consist only of
+        # geometry, like watersheds and basins, and are stored in the Region table.
+        # Conservation units, on the other hand, are geometries associated with one or more
+        # salmon populations, and are found in the ConservationUnit table.
+        # To a user of the API, information about both these kinds of geometries
+        # are accessed and formatted identically, but this functionality require
+        # constructing parallel queries depending on which kin of geometry is
+        # being asked about.
 
         if kind == "conservation_unit":
-            if not common_name:
-                # conservation unit without species
-                q = session.query(
-                    ConservationUnit.name.label("name"),
-                    ConservationUnit.code.label("code"),
-                    func.ST_AsGeoJSON(ConservationUnit.boundary).label("boundary"),
-                    func.ST_ASGeoJSON(ConservationUnit.outlet).label("outlet"),
-                )
-            else:
-                # conservation unit with species - join to Population table
-                # to get species presence data
-                q = (
-                    session.query(
-                        ConservationUnit.name.label("name"),
-                        ConservationUnit.code.label("code"),
-                        func.ST_AsGeoJSON(ConservationUnit.boundary).label("boundary"),
-                        func.ST_ASGeoJSON(ConservationUnit.outlet).label("outlet"),
-                    )
-                    .join(
-                        Population,
-                        Population.conservation_unit_id == ConservationUnit.id,
-                    )
-                    .join(Taxon, Population.taxon_id == Taxon.id)
-                    .filter(Taxon.common_name == common_name)
-                )
-
-                if subgroup:
-                    q = q.filter(Taxon.subgroup == subgroup)
-                q = q.distinct(ConservationUnit.name)
-
-            # further optional filtering common to all conservation unit queries
-            if overlap:
-                q = q.filter(ConservationUnit.boundary.ST_Intersects(overlap))
-
-            if name:
-                q = q.filter(ConservationUnit.name == name)
-
-            if code:
-                q = q.filter(ConservationUnit.code == code)
-
+            q = build_cu_query(session, overlap, name, code, common_name, subgroup)
         else:
-            if not common_name:
-                # watershed/basin without species
-                q = session.query(
-                    Region.name.label("name"),
-                    Region.code.label("code"),
-                    Region.kind.label("kind"),
-                    func.ST_AsGeoJSON(Region.boundary).label("boundary"),
-                    func.ST_AsGeoJSON(Region.outlet).label("outlet"),
-                ).filter(Region.kind == kind)
-            else:
-                # watershed/basin with species parameters - do a spatial
-                # join with ConservationUnit, to access species info via
-                # the 1:many ConservationUnit:Population relationship
-                q = (
-                    session.query(
-                        Region.name.label("name"),
-                        Region.code.label("code"),
-                        Region.kind.label("kind"),
-                        func.ST_AsGeoJSON(Region.boundary).label("boundary"),
-                        func.ST_AsGeoJSON(Region.outlet).label("outlet"),
-                    )
-                    .join(
-                        ConservationUnit,
-                        ConservationUnit.boundary.ST_Intersects(Region.boundary),
-                    )
-                    .join(
-                        Population,
-                        Population.conservation_unit_id == ConservationUnit.id,
-                    )
-                    .join(Taxon, Population.taxon_id == Taxon.id)
-                    .filter(Region.kind == kind)
-                    .filter(Taxon.common_name == common_name)
-                )
-
-                if subgroup:
-                    q = q.filter(Taxon.subgroup == subgroup)
-                q = q.distinct(Region.name)
-
-            # further optional parameters common to all watershed/basin queries
-            if overlap:
-                q = q.filter(Region.boundary.ST_Intersects(overlap))
-
-            if name:
-                q = q.filter(Region.name == name)
-
-            if code:
-                q = q.filter(Region.code == code)
-
+            q = build_region_query(
+                session, kind, overlap, name, code, common_name, subgroup
+            )
         results = q.all()
 
         result_list = [
