@@ -36,7 +36,7 @@ def cu_with_taxon(session, common_name, subgroup):
 
     if subgroup:
         q = q.filter(Taxon.subgroup == subgroup)
-    q = q.distinct(ConservationUnit.name, Taxon.id)
+    q = q.distinct()
 
     return q
 
@@ -99,7 +99,7 @@ def region_with_taxon(session, kind, common_name, subgroup):
 
     if subgroup:
         q = q.filter(Taxon.subgroup == subgroup)
-    q = q.distinct(Region.name)
+    q = q.distinct()
 
     return q
 
