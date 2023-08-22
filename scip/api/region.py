@@ -1,10 +1,12 @@
-from salmon_occurrence import Region, ConservationUnit
 from sqlalchemy_sqlschema import maintain_schema
 from sqlalchemy_sqlschema.sql import get_schema
-from sqlalchemy import func
+from scip.api.validators import parse_region_kind, parse_common_name, parse_subgroup
+from scip.api.region_helpers import build_cu_query, build_region_query
 
 
-def region(session, kind, overlap=None, name=None, code=None):
+def region(
+    session, kind, overlap=None, name=None, code=None, common_name=None, subgroup=None
+):
     """Return information about regions in the database that meet
     the specified parameters.
 
@@ -13,6 +15,8 @@ def region(session, kind, overlap=None, name=None, code=None):
     :param overlap: a WKT string specifying a geometry that overlaps with the desired region
     :param name: a string denoting the full name of the region
     :param code: a four letter unique code assigned to the region
+    :param common_name: a salmon species - Chinook Chum, Coho, Pink, or Sockeye
+    :param subgroup: a species subtype
 
     :return: a list of objects representing regions that fulfill all the specified criteria.
         For each region, the `kind`, `name`, and `code` are provided, along with two
@@ -22,65 +26,37 @@ def region(session, kind, overlap=None, name=None, code=None):
 
     """
     with maintain_schema("public, salmon_geometry", session):
-        # check kind
-        region_kinds = ["watershed", "basin", "conservation_unit"]
-        if kind not in region_kinds:
-            raise ValueError(
-                "Unsupported region kind: {}. Supported kinds: {}".format(
-                    kind, region_kinds
-                )
-            )
+        # check parameters
+        kind = parse_region_kind(session, kind)
+        if common_name:
+            common_name = parse_common_name(session, common_name)
+        if subgroup:
+            subgroup = parse_subgroup(session, common_name, subgroup)
 
-        # TODO: check other arguments, especially overlap
+        # TODO: check overlap, see https://github.com/pacificclimate/scip-frontend/issues/43
 
-        # conservation units and other types of region are kept seperately
-        # in the databse, but we want them to have the same API access
+        # This API presents data from multiple locations in the database, depending
+        # on the values of the "kind" attribute. Some regions consist only of
+        # geometry, like watersheds and basins, and are stored in the Region table.
+        # Conservation units, on the other hand, are geometries associated with one or more
+        # salmon populations, and are found in the ConservationUnit table.
+        # To a user of the API, information about both these kinds of geometries
+        # are accessed and formatted identically, but this functionality require
+        # constructing parallel queries depending on which kin of geometry is
+        # being asked about.
+
         if kind == "conservation_unit":
-            q = session.query(
-                ConservationUnit.name.label("name"),
-                ConservationUnit.code.label("code"),
-                func.ST_AsGeoJSON(ConservationUnit.boundary).label("boundary"),
-                func.ST_ASGeoJSON(ConservationUnit.outlet).label("outlet"),
-            )
-
-            if overlap:
-                q = q.filter(ConservationUnit.boundary.ST_Intersects(overlap))
-
-            if name:
-                q = q.filter(ConservationUnit.name == name)
-
-            if code:
-                q = q.filter(ConservationUnit.code == code)
-
+            q = build_cu_query(session, overlap, name, code, common_name, subgroup)
         else:
-            q = session.query(
-                Region.name.label("name"),
-                Region.code.label("code"),
-                Region.kind.label("kind"),
-                func.ST_AsGeoJSON(Region.boundary).label("boundary"),
-                func.ST_AsGeoJSON(Region.outlet).label("outlet"),
-            ).filter(Region.kind == kind)
-
-            if overlap:
-                q = q.filter(Region.boundary.ST_Intersects(overlap))
-
-            if name:
-                q = q.filter(Region.name == name)
-
-            if code:
-                q = q.filter(Region.code == code)
-
+            q = build_region_query(
+                session, kind, overlap, name, code, common_name, subgroup
+            )
         results = q.all()
 
         result_list = [
             {
                 att: getattr(result, att)
-                for att in [
-                    "name",
-                    "code",
-                    "outlet",
-                    "boundary",
-                ]
+                for att in ["name", "code", "outlet", "boundary"]
             }
             for result in results
         ]

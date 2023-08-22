@@ -13,7 +13,7 @@ def test_population_listing(db_populated_session):
 
 # check listing by species
 @pytest.mark.parametrize(
-    "species,expected", [["Chum", [PCH1, PCH2]], ["Pink", [PPKO, PPKE]], ["Coho", []]]
+    "species,expected", [["Chum", [PCH1, PCH2]], ["Pink", [PPKO, PPKE]]]
 )
 def test_population_by_species(db_populated_session, species, expected):
     response = population(db_populated_session, common_name=species)
@@ -25,16 +25,24 @@ def test_population_by_species(db_populated_session, species, expected):
     "species,subgroup,expected",
     [
         ["Chum", None, [PCH1, PCH2]],
-        ["Chum", "Banana", []],
-        ["Chum", "Odd", []],
+        ["Chum", "Banana", "error"],
+        ["Chum", "Odd", "error"],
         ["Pink", "Odd", [PPKO]],
         ["Pink", "Even", [PPKE]],
-        [None, "Even", [PPKE]],
+        [None, "Even", "error"],
     ],
 )
 def test_population_by_subgroup(db_populated_session, species, subgroup, expected):
-    response = population(db_populated_session, common_name=species, subgroup=subgroup)
-    check_populations(expected, response)
+    if expected == "error":
+        with pytest.raises(Exception) as e:
+            response = population(
+                db_populated_session, common_name=species, subgroup=subgroup
+            )
+    else:
+        response = population(
+            db_populated_session, common_name=species, subgroup=subgroup
+        )
+        check_populations(expected, response)
 
 
 @pytest.mark.parametrize(
@@ -62,10 +70,16 @@ def test_population_by_overlap_point(db_populated_session, x, y, species, expect
         [None, [PCH2, PPKO, PPKE]],
         ["Pink", [PPKO, PPKE]],
         ["Chum", [PCH2]],
-        ["Banana", []],
+        ["Banana", "error"],
     ],
 )
 def test_population_by_overlap_polygon(db_populated_session, species, expected):
     wkt = "POLYGON((15 15, 15 20, 20 20, 20 15, 15 15))"
-    response = population(db_populated_session, common_name=species, overlap=wkt)
-    check_populations(expected, response)
+    if expected == "error":
+        with pytest.raises(Exception) as e:
+            response = population(
+                db_populated_session, common_name=species, overlap=wkt
+            )
+    else:
+        response = population(db_populated_session, common_name=species, overlap=wkt)
+        check_populations(expected, response)

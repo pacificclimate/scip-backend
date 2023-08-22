@@ -5,8 +5,9 @@ from flask import request
 
 from scip.api.region import region
 from scip.api.population import population
+from scip.api.taxon import taxon
 
-methods = {"region": region, "population": population}
+methods = {"region": region, "population": population, "taxon": taxon}
 
 __all__ = list(methods.keys()) + ["call"]
 
