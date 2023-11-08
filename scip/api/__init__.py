@@ -20,8 +20,8 @@ def call(session, request_type):
         return Response("Endpoint {} not recognized".format(request_type), status=400)
 
     # check for required arguments - using request.values checkes
-    # both parameters in URL strings and parameters in JSON-style request 
-    # bodies.  
+    # both parameters in URL strings and parameters in JSON-style request
+    # bodies.
     required_params = set(get_required_args(func)).difference(["session"])
 
     provided_params = set(request.values.keys())
