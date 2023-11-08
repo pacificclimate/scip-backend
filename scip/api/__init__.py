@@ -19,10 +19,12 @@ def call(session, request_type):
     except KeyError:
         return Response("Endpoint {} not recognized".format(request_type), status=400)
 
-    # check for required arguments
+    # check for required arguments - using request.values checkes
+    # both parameters in URL strings and parameters in JSON-style request 
+    # bodies.  
     required_params = set(get_required_args(func)).difference(["session"])
 
-    provided_params = set(request.args.keys())
+    provided_params = set(request.values.keys())
     optional_params = set(get_keyword_args(func))
 
     missing_params = required_params.difference(provided_params)
@@ -31,11 +33,11 @@ def call(session, request_type):
             "Missing query parameters: {}".format(missing_params), status=400
         )
 
-    args = {key: request.args.get(key) for key in required_params}
+    args = {key: request.values.get(key) for key in required_params}
     kwargs = {
-        key: request.args.get(key)
+        key: request.values.get(key)
         for key in optional_params
-        if request.args.get(key) is not None
+        if request.values.get(key) is not None
     }
 
     args.update(kwargs)
