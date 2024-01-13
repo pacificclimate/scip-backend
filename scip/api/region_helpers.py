@@ -17,6 +17,7 @@ that might need to be constructed:
 
 from salmon_occurrence import Region, ConservationUnit, Population, Taxon
 from sqlalchemy import func
+from scip.api.projection import to_4326, assume_4326
 
 
 def cu_with_taxon(session, common_name, subgroup):
@@ -44,8 +45,8 @@ def cu_geometry_only(session):
     q = session.query(
         ConservationUnit.name.label("name"),
         ConservationUnit.code.label("code"),
-        func.ST_AsGeoJSON(ConservationUnit.boundary).label("boundary"),
-        func.ST_ASGeoJSON(ConservationUnit.outlet).label("outlet"),
+        func.ST_AsGeoJSON(to_4326(ConservationUnit.boundary)).label("boundary"),
+        func.ST_ASGeoJSON(to_4326(ConservationUnit.outlet)).label("outlet"),
     )
 
     return q
@@ -62,7 +63,9 @@ def build_cu_query(
         q = cu_geometry_only(session)
 
     if overlap:
-        q = q.filter(ConservationUnit.boundary.ST_Intersects(overlap))
+        q = q.filter(
+            to_4326(ConservationUnit.boundary).ST_Intersects(assume_4326(overlap))
+        )
 
     if name:
         q = q.filter(ConservationUnit.name == name)
@@ -101,8 +104,8 @@ def region_geometry_only(session, kind):
         Region.name.label("name"),
         Region.code.label("code"),
         Region.kind.label("kind"),
-        func.ST_AsGeoJSON(Region.boundary).label("boundary"),
-        func.ST_AsGeoJSON(Region.outlet).label("outlet"),
+        func.ST_AsGeoJSON(to_4326(Region.boundary)).label("boundary"),
+        func.ST_AsGeoJSON(to_4326(Region.outlet)).label("outlet"),
     ).filter(Region.kind == kind)
 
     return q
@@ -118,7 +121,7 @@ def build_region_query(
         q = region_geometry_only(session, kind)
 
     if overlap:
-        q = q.filter(Region.boundary.ST_Intersects(overlap))
+        q = q.filter(to_4326(Region.boundary).ST_Intersects(assume_4326(overlap)))
 
     if name:
         q = q.filter(Region.name == name)

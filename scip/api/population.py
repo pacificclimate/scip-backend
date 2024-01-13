@@ -3,6 +3,7 @@ from sqlalchemy_sqlschema import maintain_schema
 from sqlalchemy_sqlschema.sql import get_schema
 from sqlalchemy import func
 from scip.api.validators import parse_common_name, parse_subgroup
+from scip.api.projection import to_4326, assume_4326
 
 
 def population(
@@ -43,15 +44,17 @@ def population(
                 Taxon.subgroup.label("subgroup"),
                 ConservationUnit.name.label("name"),
                 ConservationUnit.code.label("code"),
-                func.ST_AsGeoJSON(ConservationUnit.boundary).label("boundary"),
-                func.ST_ASGeoJSON(ConservationUnit.outlet).label("outlet"),
+                func.ST_AsGeoJSON(to_4326(ConservationUnit.boundary)).label("boundary"),
+                func.ST_ASGeoJSON(to_4326(ConservationUnit.outlet)).label("outlet"),
             )
             .join(Population, Population.conservation_unit_id == ConservationUnit.id)
             .join(Taxon, Population.taxon_id == Taxon.id)
         )
 
         if overlap:
-            q = q.filter(ConservationUnit.boundary.ST_Intersects(overlap))
+            q = q.filter(
+                to_4326(ConservationUnit.boundary).ST_Intersects(assume_4326(overlap))
+            )
 
         if name:
             q = q.filter(ConservationUnit.name == name)
