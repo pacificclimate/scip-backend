@@ -1,5 +1,5 @@
 # scip-backend
-This application accesses a PostGIS database containing information on predefined areas a user might care about (watersheds, basins, etc) and the locations of various salmon populations. Its role is to provide data to the [SCIP frontend](https://github.com/pacificclimate/scip-frontend).
+This application accesses a PostGIS database containing information on predefined areas a user might care about (watersheds, basins, and salmon conservation units) and metadata about salmon populations. Its role is to provide data to the [SCIP frontend](https://github.com/pacificclimate/scip-frontend).
 
 ## Installation for development
 
