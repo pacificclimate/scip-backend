@@ -2,7 +2,15 @@ import pytest
 from scip.api import population
 
 # test data
-from sample_data import PCH1, PCH2, PPKO, PPKE, check_populations, wgs84_point, wgs84_polygon
+from sample_data import (
+    PCH1,
+    PCH2,
+    PPKO,
+    PPKE,
+    check_populations,
+    wgs84_point,
+    wgs84_polygon,
+)
 
 
 # check listing of all populations
@@ -74,7 +82,9 @@ def test_population_by_overlap_point(db_populated_session, x, y, species, expect
     ],
 )
 def test_population_by_overlap_polygon(db_populated_session, species, expected):
-    wkt = wgs84_polygon("POLYGON((2000014 1000014, 2000015 1000020, 2000021 1000021, 2000020 1000015, 2000014 1000014))")
+    wkt = wgs84_polygon(
+        "POLYGON((2000014 1000014, 2000015 1000020, 2000021 1000021, 2000020 1000015, 2000014 1000014))"
+    )
     if expected == "error":
         with pytest.raises(Exception) as e:
             response = population(

@@ -3,7 +3,15 @@ import json
 from scip.api import region
 
 # test data
-from sample_data import WAT1, WAT2, WAT3, BAS1, check_regions, wgs84_point, wgs84_polygon
+from sample_data import (
+    WAT1,
+    WAT2,
+    WAT3,
+    BAS1,
+    check_regions,
+    wgs84_point,
+    wgs84_polygon,
+)
 from sample_data import CUC1, CUC2, CUPO, CUPE
 
 
@@ -75,7 +83,9 @@ def test_region_overlap_point(db_populated_session, x, y, kind, expected):
 
 # test requestion a region overlapping a polygon
 def test_region_overlap_polygon(db_populated_session):
-    response = region(db_populated_session, kind="watershed", overlap=wgs84_polygon(BAS1["boundary"]))
+    response = region(
+        db_populated_session, kind="watershed", overlap=wgs84_polygon(BAS1["boundary"])
+    )
     check_regions([WAT1, WAT2], response)
 
 

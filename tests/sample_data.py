@@ -5,21 +5,21 @@ import geojson
 import shapely
 
 ## coordinates are in BC Albers projection, which is used by
-#3 this database. 2000000 1000000 us treated as an "origin"
+# 3 this database. 2000000 1000000 us treated as an "origin"
 ## with the sample areas being squares displaced small distances
 ## from the origin.
 
 # The database stores regions in BC Albers projection (for accuracy, and because
 # all our sources are BC Albers). However, the front end that calls this API wants
-# WGS84 projection for leaflet. 
-# Therefore the API does a translation from Albers to WGS84 using postgis 
+# WGS84 projection for leaflet.
+# Therefore the API does a translation from Albers to WGS84 using postgis
 # functionality.
 # But how can we check this translation?
 # One option is to use OGR in the test suite to double-check the projections.
 # However, that would make this repository dependant on GDAL, but only for testing
-# this one task, which doesn't seem worth it. GDAL is fussy and difficult to 
+# this one task, which doesn't seem worth it. GDAL is fussy and difficult to
 # maintain.
-# Instead, here is a pregenerated list of all the points used in the test 
+# Instead, here is a pregenerated list of all the points used in the test
 # suite with their BC Albers and WGS84 translations.
 # If you add new test data, you may need to add new points to this list, you can
 # calculate them with gdaltransform -s_srs epsg:3005 -t_srs wgs84
@@ -28,70 +28,61 @@ albers_to_wgs84 = [
     [[2000000, 1000000], [-110.939153732, 53.046585944]],
     [[2000000, 1000010], [-110.939122171, 53.046673561]],
     [[2000000, 1000015], [-110.939106390, 53.046717369]],
-
-    
     [[2000005, 1000005], [-110.939064899, 53.046620289]],
     [[2000005, 1000015], [-110.939033338, 53.046707906]],
-    
-    [[2000010, 1000000],[-110.939007627, 53.046567017]],    
-    [[2000010, 1000010],[-110.938976066, 53.046654634]],
-
+    [[2000010, 1000000], [-110.939007627, 53.046567017]],
+    [[2000010, 1000010], [-110.938976066, 53.046654634]],
     [[2000015, 1000000], [-110.938934575, 53.046557554]],
-    [[2000015, 1000005], [-110.938918794, 53.046601362]],    
+    [[2000015, 1000005], [-110.938918794, 53.046601362]],
     [[2000015, 1000015], [-110.938887232, 53.046688979]],
     [[2000015, 1000020], [-110.938944504, 53.046742251]],
-    
-
-    
     [[2000020, 1000015], [-110.938814180, 53.046679515]],
     [[2000020, 1000020], [-110.938798399, 53.046723324]],
     [[2000020, 1000030], [-110.938766837, 53.046810940]],
-
     [[2000030, 1000020], [-110.938652294, 53.046704396]],
     [[2000030, 1000030], [-110.938620731, 53.046792013]],
-    
     [[2000100, 1000100], [-110.937377043, 53.047272831]],
-    
-    # because translatiing between albers and wgs84 sometimes 
+    # because translatiing between albers and wgs84 sometimes
     # introduces rounding errors, points on the boundaries of
-    # regions can be unreliable for overlap testing. 
-    # therefore, here are a few extra points inset by one meter 
-    # from the edges of boundaries, to use in overlap tests 
+    # regions can be unreliable for overlap testing.
+    # therefore, here are a few extra points inset by one meter
+    # from the edges of boundaries, to use in overlap tests
     # to avoid pesky rounding errors.
     # (rounding errors aren't an issue with the way the server is
     # used in real life; the user is not going to click on the exact
     # edge of a region, and if they do, they will be unsurprised by
     # results that may exclude that region).
-    [[2000014, 1000014], [-110.938904999, 53.046682110]], 
+    [[2000014, 1000014], [-110.938904999, 53.046682110]],
     [[2000016, 1000016], [-110.938869466, 53.046695848]],
     [[2000021, 1000021], [-110.938780632, 53.046730193]],
-
 ]
+
 
 def wgs84_point(x, y):
     for mapping in albers_to_wgs84:
         if x == mapping[0][0] and y == mapping[0][1]:
             return "POINT({} {})".format(mapping[1][0], mapping[1][1])
     assert 0, "cannot translate point {} {}, check albers_to_wgs84".format(x, y)
-    
+
+
 def wgs84_polygon(wkt):
     points = re.findall(r"[0-9\.]+ [0-9\.]+", wkt)
-    
+
     def listize(str):
         p = str.split()
         return [int(p[0]), int(p[1])]
-    
-    def wgs84ize(p): 
+
+    def wgs84ize(p):
         for mapping in albers_to_wgs84:
             if p[0] == mapping[0][0] and p[1] == mapping[0][1]:
                 return "{} {}".format(mapping[1][0], mapping[1][1])
-        assert 0, "cannot translate polygon {}, check albers_to_wgs84".format(p) 
+        assert 0, "cannot translate polygon {}, check albers_to_wgs84".format(p)
 
     lpoints = list(map(listize, points))
-    wgs_points = list(map(wgs84ize, lpoints))    
-    pol =  "POLYGON(({}))".format(",".join(wgs_points))
+    wgs_points = list(map(wgs84ize, lpoints))
+    pol = "POLYGON(({}))".format(",".join(wgs_points))
     return pol
-    
+
 
 # square test regions.
 # watersheds 1 and two overlap and are inside basin 1.
@@ -129,6 +120,7 @@ BAS1 = {
     "outlet": "POINT(2000000 1000000)",
 }
 
+
 # helper function that converts a no-srs wkt string to a
 # geojson string with a BC Albers SRS
 def make_albers(wkt):
@@ -136,6 +128,7 @@ def make_albers(wkt):
     gj = json.loads(geojson.dumps(shape))
     gj["crs"] = {"type": "name", "properties": {"name": "epsg:3005"}}
     return json.dumps(gj)
+
 
 # make a sample region into an ORM Region for database insertion
 def make_region(kind, name, code, boundary, outlet):
@@ -170,7 +163,7 @@ def WKT_matches_geoJSON(wkt, gj):
                 wgs_point = mapping[1]
         if not wgs_point:
             assert 0, "can't translate point {}, check albers_to_wgs84".format(point)
-        
+
         assert wgs_point in coords
 
 
