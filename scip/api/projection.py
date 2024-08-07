@@ -5,6 +5,15 @@
 # use assume_4326 on parameters received from the front end, to add a projection
 # use to_4326 on data fetched from the back end, to convert it to EPSG 4236
 
+# All geoJSON is officially defined as 4326 as of 2016.
+# See https://www.rfc-editor.org/rfc/rfc7946#section-4
+# So assume_4326 should theoretically just be able to convert
+# any WKT string to geoJSON and have that be sufficient to establish
+# the geometry as 4326. However, we got errors doing this, so we are
+# still using the deprecated "crs" attribute with our geoJSON strings.
+# TODO: determine source of those errors, switch to modern geoJSON
+# handling.
+
 from sqlalchemy import func
 import shapely.wkt
 import geojson
