@@ -78,17 +78,17 @@ def test_parsing_wkt_points(region):
     [
         "POINT",
         "BANANA",
-        "BANANA(0 0)",
+        "BANANA(2000000 1000000)",
         "POINT()",
-        "POINT(0 0 0 0)",
-        "POINT(0)",
-        "POLYGON((5 5 5 15, 15 15, 15 5, 5 5))",
+        "POINT(2000000 1000000 2000000 1000000)",
+        "POINT(200000)",
+        "POLYGON((2000005 1000005 2000005 1000015, 2000015 1000015, 2000015 1000005, 2000005 1000005))",
         "POINT(BANANA BANANA)",
-        "POINT(5 BANANA)"
+        "POINT(2000005 BANANA)"
         "POLYGON()"
         "POLYGON(())"
-        "POLYGON((5 5, 5 15))"
-        "POLYGON ((5 5, 5 15, 15 15, 15 5, 5 5))",
+        "POLYGON((2000005 1000005, 2000005 1000015))"
+        "POLYGON ((2000005 1000005, 2000005 1000015, 2000015 1000015, 2000015 1000005, 2000005 1000005))",
     ],
 )
 def test_parsing_invalid_wkt(bad_wkt):

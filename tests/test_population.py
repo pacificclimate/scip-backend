@@ -2,7 +2,15 @@ import pytest
 from scip.api import population
 
 # test data
-from sample_data import PCH1, PCH2, PPKO, PPKE, check_populations
+from sample_data import (
+    PCH1,
+    PCH2,
+    PPKO,
+    PPKE,
+    check_populations,
+    wgs84_point,
+    wgs84_polygon,
+)
 
 
 # check listing of all populations
@@ -48,18 +56,18 @@ def test_population_by_subgroup(db_populated_session, species, subgroup, expecte
 @pytest.mark.parametrize(
     "x,y,species,expected",
     [
-        [0, 0, None, [PPKE, PCH1]],
-        [0, 0, "Chum", [PCH1]],
-        [15, 15, None, [PPKE, PCH2]],
-        [15, 15, "Pink", [PPKE]],
-        [100, 100, None, []],
-        [30, 30, "Pink", [PPKO]],
-        [30, 30, None, [PPKO]],
-        [30, 30, "Chum", []],
+        [2000000, 1000000, None, [PPKE, PCH1]],
+        [2000000, 1000000, "Chum", [PCH1]],
+        [2000014, 1000014, None, [PPKE, PCH2]],
+        [2000014, 1000014, "Pink", [PPKE]],
+        [2000100, 1000100, None, []],
+        [2000021, 1000021, "Pink", [PPKO]],
+        [2000021, 1000021, None, [PPKO]],
+        [2000030, 1000030, "Chum", []],
     ],
 )
 def test_population_by_overlap_point(db_populated_session, x, y, species, expected):
-    wkt = "POINT({} {})".format(x, y)
+    wkt = wgs84_point(x, y)
     response = population(db_populated_session, common_name=species, overlap=wkt)
     check_populations(expected, response)
 
@@ -74,7 +82,9 @@ def test_population_by_overlap_point(db_populated_session, x, y, species, expect
     ],
 )
 def test_population_by_overlap_polygon(db_populated_session, species, expected):
-    wkt = "POLYGON((15 15, 15 20, 20 20, 20 15, 15 15))"
+    wkt = wgs84_polygon(
+        "POLYGON((2000014 1000014, 2000015 1000020, 2000021 1000021, 2000020 1000015, 2000014 1000014))"
+    )
     if expected == "error":
         with pytest.raises(Exception) as e:
             response = population(

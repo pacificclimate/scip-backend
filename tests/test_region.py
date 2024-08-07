@@ -3,7 +3,15 @@ import json
 from scip.api import region
 
 # test data
-from sample_data import WAT1, WAT2, WAT3, BAS1, check_regions
+from sample_data import (
+    WAT1,
+    WAT2,
+    WAT3,
+    BAS1,
+    check_regions,
+    wgs84_point,
+    wgs84_polygon,
+)
 from sample_data import CUC1, CUC2, CUPO, CUPE
 
 
@@ -61,21 +69,23 @@ def test_region_name_parameter(db_populated_session, name, kind, expected):
 @pytest.mark.parametrize(
     "x, y, kind, expected",
     [
-        (0, 0, "watershed", [WAT1]),
-        (0, 0, "basin", [BAS1]),
-        (10, 10, "watershed", [WAT1, WAT2]),
-        (0, 0, "conservation_unit", [CUC1, CUPE]),
+        (2000000, 1000000, "watershed", [WAT1]),
+        (2000000, 1000000, "basin", [BAS1]),
+        (2000005, 1000005, "watershed", [WAT1, WAT2]),
+        (2000000, 1000000, "conservation_unit", [CUC1, CUPE]),
     ],
 )
 def test_region_overlap_point(db_populated_session, x, y, kind, expected):
-    wkt = "POINT({} {})".format(x, y)
+    wkt = wgs84_point(x, y)
     response = region(db_populated_session, kind=kind, overlap=wkt)
     check_regions(expected, response)
 
 
 # test requestion a region overlapping a polygon
 def test_region_overlap_polygon(db_populated_session):
-    response = region(db_populated_session, kind="watershed", overlap=BAS1["boundary"])
+    response = region(
+        db_populated_session, kind="watershed", overlap=wgs84_polygon(BAS1["boundary"])
+    )
     check_regions([WAT1, WAT2], response)
 
 
@@ -115,6 +125,6 @@ def test_region_by_species_and_overlap(
         kind=kind,
         common_name=species,
         subgroup=subgroup,
-        overlap=boundary["boundary"],
+        overlap=wgs84_polygon(boundary["boundary"]),
     )
     check_regions(expected, response)
