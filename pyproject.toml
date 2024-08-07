@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "scip-backend"
-version = "0.1.0"
+version = "1.0.0"
 description = "APIs that provide salmon data to the SCIP frontend"
 authors = ["Lee Zeman <lzeman@uvic.ca>"]
 license = "GPL-3.0-or-later"
