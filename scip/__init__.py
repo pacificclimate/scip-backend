@@ -14,6 +14,7 @@ def get_app():
         "DB", "postgresql://scip_ro@db.pcic.uvic.ca/scip"
     )
     app.config["SQLALCHEMY_TRACK_MODIFICATION"] = False
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
 
     add_routes(app)
     return app
