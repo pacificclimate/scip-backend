@@ -11,9 +11,9 @@ RUN mkdir /app
 WORKDIR /app
 ADD . /app/
 
-RUN curl -sSL https://install.python-poetry.org | python3 -
 RUN export PATH="/root/.local/bin:$PATH"
-RUN /root/.local/bin/poetry install
+RUN pip install poetry==1.8.5
+RUN poetry install
 
 
 
