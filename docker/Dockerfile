@@ -12,7 +12,7 @@ WORKDIR /app
 ADD . /app/
 
 RUN export PATH="/root/.local/bin:$PATH"
-RUN pip install poetry
+RUN pip install poetry==1.8.5
 RUN poetry install
 
 
