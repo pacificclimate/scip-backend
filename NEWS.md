@@ -1,5 +1,10 @@
 # News / Release Notes
 
+## 1.0.1
+**2025-Apr-08**
+
+* Enable sqlalchemy's feature that  checks if the database connection is up befor sending queries [#15](https://github.com/pacificclimate/scip-backend/pull/15)
+
 ## 1.0.0
 **2024-Aug-07**
 
