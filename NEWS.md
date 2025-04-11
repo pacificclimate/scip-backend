@@ -1,5 +1,10 @@
 # News / Release Notes
 
+## 1.0.2
+**2025-Apr-10**
+
+* Fix a bug in the Dockerfile. [#17](https://github.com/pacificclimate/scip-backend/pull/17)
+
 ## 1.0.1
 **2025-Apr-08**
 
