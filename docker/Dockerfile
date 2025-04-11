@@ -18,4 +18,4 @@ RUN poetry install
 
 
 EXPOSE 5000
-CMD /root/.local/bin/poetry run flask run --host=0.0.0.0
+CMD poetry run flask run --host=0.0.0.0
