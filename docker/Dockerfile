@@ -4,7 +4,7 @@ RUN apt-get update
 RUN apt-get -yq install postgresql-client
 RUN apt-get -yq install curl libpq-dev
 
-ENV FLASK_APP scip.wsgi:app
+ENV FLASK_APP=scip.wsgi:app
 
 RUN mkdir /app
 WORKDIR /app
