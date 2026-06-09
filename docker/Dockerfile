@@ -18,4 +18,8 @@ RUN poetry install
 
 
 EXPOSE 5000
-CMD poetry run flask run --host=0.0.0.0
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:5000/readyz || exit 1
+
+CMD ["poetry", "run", "flask", "run", "--host=0.0.0.0", "--port=5000"]
