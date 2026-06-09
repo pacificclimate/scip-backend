@@ -18,7 +18,7 @@ from sample_data import WAT1, WAT2, WAT3, BAS1
     ],
 )
 def test_parsing_regions(db_populated_session, kind, expected):
-    if expected is "error":
+    if expected == "error":
         with pytest.raises(ValueError) as e:
             parse_region_kind(db_populated_session, kind)
     else:
@@ -36,7 +36,7 @@ def test_parsing_regions(db_populated_session, kind, expected):
     ],
 )
 def test_parsing_species(db_populated_session, species, expected):
-    if expected is "error":
+    if expected == "error":
         with pytest.raises(ValueError) as e:
             parse_common_name(db_populated_session, species)
     else:
@@ -56,7 +56,7 @@ def test_parsing_species(db_populated_session, species, expected):
     ],
 )
 def test_parsing_subgroups(db_populated_session, species, subgroup, expected):
-    if expected is "error":
+    if expected == "error":
         with pytest.raises(ValueError) as e:
             parse_subgroup(db_populated_session, species, subgroup)
     else:

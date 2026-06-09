@@ -5,6 +5,8 @@ This application accesses a PostGIS database containing information on predefine
 
 The SCIP backend uses [Poetry](https://python-poetry.org/) to manage virtual environments and package installation. Once you have Poetry installed and this repository cloned, you can use Poetry to set up and manage the virtual environment:
 
+This project now targets Python 3.12 or newer.
+
 ```bash
 $ git clone http://github.com/pacificclimate/scip-backend
 $ cd scip-backend

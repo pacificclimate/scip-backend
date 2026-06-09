@@ -1,5 +1,5 @@
 import os
-from typing import Any
+from typing import Any, Dict
 
 from flask import Flask
 from flask_cors import CORS
@@ -11,7 +11,7 @@ from scip.routes import add_routes
 db = SQLAlchemy()
 
 
-def _build_engine_options() -> dict[str, Any]:
+def _build_engine_options() -> Dict[str, Any]:
     """Build SQLAlchemy engine options from environment variables.
 
     Set SQLALCHEMY_POOL_CLASS=null to use NullPool (recommended when deploying
@@ -21,7 +21,7 @@ def _build_engine_options() -> dict[str, Any]:
     if os.getenv("SQLALCHEMY_POOL_CLASS", "").lower() == "null":
         return {"poolclass": NullPool}
 
-    options: dict[str, Any] = {"pool_pre_ping": True}
+    options: Dict[str, Any] = {"pool_pre_ping": True}
 
     for env_var, key, cast in [
         ("SQLALCHEMY_POOL_SIZE", "pool_size", int),

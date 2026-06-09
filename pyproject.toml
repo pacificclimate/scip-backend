@@ -8,7 +8,7 @@ readme = "README.md"
 packages = [ {include = "scip"} ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.12"
 geoalchemy2 = "^0.13.3"
 salmon-occurrence = {git = "https://github.com/pacificclimate/scip-db/"}
 flask = "^2.3.2"
