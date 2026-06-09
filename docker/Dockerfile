@@ -1,6 +1,7 @@
 FROM python:3.12-slim
 
 RUN apt-get update
+RUN apt-get -yq install build-essential
 RUN apt-get -yq install postgresql-client
 RUN apt-get -yq install curl libpq-dev
 
