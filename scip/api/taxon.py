@@ -1,5 +1,3 @@
-from sqlalchemy_sqlschema import maintain_schema
-from sqlalchemy_sqlschema.sql import get_schema
 from salmon_occurrence import Taxon
 
 

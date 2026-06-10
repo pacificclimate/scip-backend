@@ -69,23 +69,22 @@ def parse_subgroup(session, species, subgroup):
 # the front end doesn't generate WKT with a space, so it's not supported
 # by this function, even though it is valid WKT.
 def parse_wkt(wkt):
-    regex_point = "-?(\d+(?:\.\d*)?) -?(\d+(?:\.\d*)?)"
+    regex_point = r"-?(\d+(?:\.\d*)?) -?(\d+(?:\.\d*)?)"
     if wkt.startswith("POINT"):
-        template = "^POINT\(" + regex_point + "\)$"
-        print(template)
+        template = r"^POINT\(" + regex_point + r"\)$"
         if re.match(template, wkt):
             return wkt
         else:
             raise ValueError("Could not parse WKT POINT: {}".format(wkt))
     elif wkt.startswith("POLYGON"):
         template = (
-            "^POLYGON\(\("
+            r"^POLYGON\(\("
             + regex_point
             + ", "
             + regex_point
             + "(, "
             + regex_point
-            + ")*\)\)$"
+            + r")*\)\)$"
         )
 
         if re.match(template, wkt):
