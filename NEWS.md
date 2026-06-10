@@ -1,5 +1,10 @@
 # News / Release Notes
 
+## 1.1.0
+**2026-Jun-10**
+
+* Maintenance upgrades, Python 3.12, Dockerfile slimdown, customisable SQLAlchemy Pool configurations, `readyz` endpoint for healthchecks [#20](https://github.com/pacificclimate/scip-backend/pull/20)
+
 ## 1.0.2
 **2025-Apr-10**
 
@@ -8,7 +13,7 @@
 ## 1.0.1
 **2025-Apr-08**
 
-* Enable sqlalchemy's feature that  checks if the database connection is up befor sending queries [#15](https://github.com/pacificclimate/scip-backend/pull/15)
+* Enable sqlalchemy's feature that  checks if the database connection is up before sending queries [#15](https://github.com/pacificclimate/scip-backend/pull/15)
 
 ## 1.0.0
 **2024-Aug-07**

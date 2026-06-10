@@ -25,3 +25,18 @@ And now you should be able to run it:
 ```
 $ poetry run flask run
 ```
+
+## Releasing
+
+Creating a versioned release involves:
+
+1. Incrementing `__version__` in `pyproject.toml`
+2. Summarize the changes from the last release in `NEWS.md`
+3. Commit these changes, then tag the release:
+
+  ```bash
+git add setup.py NEWS.md
+git commit -m"Bump to version x.x.x"
+git tag -a -m"x.x.x" x.x.x
+git push --follow-tags
+  ```
