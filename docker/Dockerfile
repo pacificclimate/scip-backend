@@ -42,6 +42,6 @@ ENV FLASK_APP=scip.wsgi:app
 EXPOSE 5000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:5000/readyz || exit 1
+    CMD curl -f http://localhost:5000/api/readyz || exit 1
 
 CMD ["gunicorn", "-b", "0.0.0.0:5000", "scip.wsgi:app"]

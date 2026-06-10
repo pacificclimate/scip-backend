@@ -5,7 +5,7 @@ import scip.api as api
 
 
 def add_routes(app, db):
-    @app.route("/readyz")
+    @app.route("/api/readyz")
     def readyz():
         status = {"status": "ok"}
         http_status = 200
